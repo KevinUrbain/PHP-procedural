@@ -1,0 +1,323 @@
+# Bien comprendre les tableaux et les boucles
+
+# PARTIE 1 — Les tableaux
+
+## 1. C'est quoi un tableau ?
+
+Un tableau, c'est une **variable qui contient plusieurs valeurs** :
+
+```php
+<?php
+// Variable normale — une seule valeur
+$prenom = "Jack";
+
+// Tableau — plusieurs valeurs dans une seule variable
+$prenoms = ["Jack", "Alice", "Bob"];
+```
+
+## 2. Les trois types de tableaux
+
+### Tableau indexé — clés numériques automatiques
+
+```php
+$fruits = ["pomme", "banane", "cerise"];
+//index :     0         1        2
+```
+
+### Pour accéder à une valeur, on utilise son **index** (commence à 0) :
+
+```php
+echo $fruits[0];   // "pomme"
+echo $fruits[1];   // "banane"
+echo $fruits[2];   // "cerise"
+```
+
+### **Tableau associatif — clés nommées**
+
+```php
+$employe = [
+    "prenom" => "Jack",
+    "age"    => 35,
+    "poste"  => "Développeur"
+];
+```
+
+### Pour accéder à une valeur, on utilise sa **clé** :
+
+```php
+echo $employe["prenom"];   // "Jack"
+echo $employe["age"];      // 35
+echo $employe["poste"];    // "Développeur"
+```
+
+### Tableau multidimensionnel — tableaux dans un tableau
+
+C'est ce qu'on utilise pour représenter **une liste d'entités** (élèves, produits, employés...) :
+
+```php
+$eleves = [
+    ["prenom" => "Josh",   "note" => 5.3],
+    ["prenom" => "Martin", "note" => 18.3],
+    ["prenom" => "Sabine", "note" => 8.9],
+];
+
+// Accès à une valeur précise
+echo $eleves[0]["prenom"];   // "Josh"   — 1er élève, clé "prenom"
+echo $eleves[1]["note"];     // 18.3     — 2ème élève, clé "note"
+echo $eleves[2]["prenom"];   // "Sabine" — 3ème élève, clé "prenom"
+```
+
+Visualise-le comme un **tableau Excel** :
+```
+Index | prenom  | note
+------|---------|------
+  0   | Josh    | 5.3
+  1   | Martin  | 18.3
+  2   | Sabine  | 8.9
+```
+
+## **3. Ajouter des données dans un tableau**
+
+```php
+$resultats = [];   // Tableau vide
+
+// Ajouter à la fin avec []
+$resultats[] = "première valeur";
+$resultats[] = "deuxième valeur";
+$resultats[] = "troisième valeur";
+
+// $resultats contient maintenant :
+// ["première valeur", "deuxième valeur", "troisième valeur"]
+
+// Ajouter un tableau associatif
+$resultats[] = ["prenom" => "Jack", "note" => 15];
+$resultats[] = ["prenom" => "Alice", "note" => 17];
+```
+
+# PARTIE 2 — Les boucles sur les tableaux
+
+## 4. `foreach` — parcourir un tableau
+
+### Sur un tableau indexé
+
+```php
+$fruits = ["pomme", "banane", "cerise"];
+
+foreach ($fruits as $fruit) {
+    echo $fruit . "<br>";
+}
+// Affiche :
+// pomme
+// banane
+// cerise
+```
+
+### **Sur un tableau associatif**
+
+```php
+$employe = [
+    "prenom" => "Jack",
+    "age"    => 35,
+    "poste"  => "Développeur"
+];
+
+foreach ($employe as $cle => $valeur) {
+    echo "{$cle} : {$valeur}<br>";
+}
+// Affiche :
+// prenom : Jack
+// age : 35
+// poste : Développeur
+```
+
+### **Sur un tableau multidimensionnel**
+
+```php
+$eleves = [
+    ["prenom" => "Josh",   "note" => 5.3],
+    ["prenom" => "Martin", "note" => 18.3],
+    ["prenom" => "Sabine", "note" => 8.9],
+];
+
+foreach ($eleves as $eleve) {
+    // $eleve vaut successivement chaque sous-tableau
+    echo "{$eleve['prenom']} : {$eleve['note']}<br>";
+}
+// Affiche :
+// Josh : 5.3
+// Martin : 18.3
+// Sabine : 8.9
+```
+
+---
+
+# PARTIE 3 — Stocker des résultats issus d'une boucle
+
+C'est **le concept clé** que tu avais du mal à maîtriser. Voici la mécanique complète.
+
+## 5. Le pattern "collecter et stocker"
+
+Le principe est toujours le même :
+```
+1. Je crée un tableau vide AVANT la boucle
+2. Dans la boucle, je traite chaque élément
+3. Je stocke le résultat dans le tableau avec $tableau[]
+4. APRÈS la boucle, j'utilise les résultats
+```
+
+```php
+<?php
+$eleves = [
+    ["prenom" => "Josh",   "note" => 5.3],
+    ["prenom" => "Martin", "note" => 18.3],
+    ["prenom" => "Sabine", "note" => 8.9],
+];
+
+// ÉTAPE 1 — tableau vide avant la boucle
+$resultats = [];
+
+// ÉTAPE 2 & 3 — traitement et stockage dans la boucle
+foreach ($eleves as $eleve) {
+
+    // Je calcule quelque chose
+    $mention = $eleve['note'] >= 10 ? "Reçu" : "Échoué";
+
+    // Je stocke le résultat enrichi
+    $resultats[] = [
+        "prenom"  => $eleve['prenom'],
+        "note"    => $eleve['note'],
+        "mention" => $mention        // donnée calculée ajoutée
+    ];
+}
+
+// ÉTAPE 4 — j'utilise les résultats APRÈS la boucle
+foreach ($resultats as $resultat) {
+    echo "{$resultat['prenom']} : {$resultat['mention']}<br>";
+}
+```
+
+## 6. Le pattern "accumuler pour calculer"
+
+Pour calculer une **somme**, une **moyenne**, un **compteur** :
+
+```php
+<?php
+$eleves = [
+    ["prenom" => "Josh",   "note" => 5.3,  "actif" => true],
+    ["prenom" => "Martin", "note" => 18.3, "actif" => true],
+    ["prenom" => "Sabine", "note" => 8.9,  "actif" => false],
+];
+
+// AVANT la boucle — initialisation des accumulateurs
+$somme    = 0;
+$compteur = 0;
+
+foreach ($eleves as $eleve) {
+
+    // Je saute les inactifs
+    if (!$eleve['actif']) {
+        continue;
+    }
+
+    // J'accumule
+    $somme    += $eleve['note'];
+    $compteur++;
+}
+
+// APRÈS la boucle — je calcule avec les accumulateurs
+// Protection contre la division par zéro
+$moyenne = $compteur > 0 ? $somme / $compteur : 0;
+
+echo "Élèves actifs : {$compteur}<br>";
+echo "Moyenne : {$moyenne}<br>";
+// Élèves actifs : 2
+// Moyenne : 11.8
+```
+
+## 7. Combiner les deux patterns
+
+C'est ce que l'exercice 4 demandait — **collecter ET accumuler** en même temps :
+
+```php
+<?php
+$eleves = [
+    ["prenom" => "Josh",   "note" => 5.3,  "actif" => true],
+    ["prenom" => "Martin", "note" => 18.3, "actif" => true],
+    ["prenom" => "Sabine", "note" => 8.9,  "actif" => false],
+];
+
+// Initialisation AVANT la boucle
+$resultats = [];   // pour stocker
+$somme     = 0;    // pour accumuler
+$compteur  = 0;    // pour compter
+
+foreach ($eleves as $eleve) {
+
+    if (!$eleve['actif']) {
+        continue;
+    }
+
+    // Calcul de la mention
+    if ($eleve['note'] >= 16) {
+        $mention = "Très bien";
+    } elseif ($eleve['note'] >= 10) {
+        $mention = "Passable";
+    } else {
+        $mention = "Insuffisant";
+    }
+
+    // Stockage du résultat enrichi
+    $resultats[] = [
+        "prenom"  => $eleve['prenom'],
+        "note"    => $eleve['note'],
+        "mention" => $mention
+    ];
+
+    // Accumulation
+    $somme    += $eleve['note'];
+    $compteur++;
+}
+
+// APRÈS la boucle — tout est prêt
+$moyenne = $compteur > 0 ? $somme / $compteur : 0;
+
+// Affichage des résultats stockés
+foreach ($resultats as $r) {
+    echo "{$r['prenom']} — {$r['note']} — {$r['mention']}<br>";
+}
+
+echo "Moyenne : {$moyenne}";
+```
+
+## 🎯 Exercice de consolidation
+
+Voici un exercice **ciblé sur ces patterns uniquement**, sans HTML pour l'instant — juste la logique PHP pure.
+
+Tu as ce tableau de produits d'une boutique en ligne :
+
+```php
+$produits = [
+    ["nom" => "Laptop",   "prix" => 899.99, "stock" => 5,  "actif" => true],
+    ["nom" => "Souris",   "prix" => 29.99,  "stock" => 0,  "actif" => true],
+    ["nom" => "Clavier",  "prix" => 79.99,  "stock" => 12, "actif" => true],
+    ["nom" => "Écran",    "prix" => 349.99, "stock" => 3,  "actif" => false],
+    ["nom" => "Webcam",   "prix" => 59.99,  "stock" => 8,  "actif" => true],
+];
+```
+
+Avec une seule boucle `foreach`, tu dois :
+
+1. **Ignorer** les produits inactifs (`actif => false`)
+2. Calculer pour chaque produit actif une **disponibilité** :
+    - `stock > 0` → `"En stock"`
+    - `stock === 0` → `"Rupture de stock"`
+3. **Stocker** dans `$resultats[]` chaque produit actif enrichi avec sa disponibilité
+4. **Accumuler** la valeur totale du stock (`prix * stock`) pour les produits actifs EN stock uniquement
+5. **Compter** séparément les produits en stock et en rupture
+6. **Après** la boucle, afficher avec `var_dump()` :
+    - `$resultats`
+    - `$valeurTotaleStock`
+    - `$nbEnStock`
+    - `$nbEnRupture`
+
+Uniquement du PHP, pas de HTML. Juste la logique.
